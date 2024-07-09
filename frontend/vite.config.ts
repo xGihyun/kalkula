@@ -2,10 +2,10 @@ import path from "path";
 
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
-import tsconfigPaths from "vite-tsconfig-paths";
+import Icons from "unplugin-icons/vite";
 
 export default defineConfig({
-  plugins: [solid(), tsconfigPaths()],
+  plugins: [solid(), Icons({ compiler: "solid" })],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

@@ -24,6 +24,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
+		"types": ["unplugin-icons/types/solid"],
+
     /* Aliases */
 		"baseUrl": ".",
 		"paths": {

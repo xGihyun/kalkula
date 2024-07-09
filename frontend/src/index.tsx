@@ -3,8 +3,9 @@ import { render } from "solid-js/web";
 
 import "./index.css";
 import { Route, Router } from "@solidjs/router";
-import Calculator from "./pages/Calculator";
+import Calculator from "./pages/calculator";
 import App from "./App";
+import "mathlive/fonts.css";
 
 const root = document.getElementById("app");
 

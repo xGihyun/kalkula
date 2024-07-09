@@ -2,11 +2,187 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: inter, sans-serif;
+
+  --keyboard-background: transparent;
+  --_keyboard-height: 100%;
+}
+
+math-field::part(virtual-keyboard-toggle) {
+  display: none;
+}
+
+math-field::part(menu-toggle) {
+  display: none;
+}
+
+math-field::part(content) {
+  height: 100%;
+}
+
+math-field::part(container) {
+  height: 100%;
+}
+
+@font-face {
+  font-family: inter;
+  src: url('assets/fonts/inter/Inter-Regular.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: inter-bold;
+  src: url('assets/fonts/inter/Inter-Bold.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: inter-medium;
+  src: url('assets/fonts/inter/Inter-Medium.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: inter-semibold;
+  src: url('assets/fonts/inter/Inter-SemiBold.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: inter-black;
+  src: url('assets/fonts/inter/Inter-Black.ttf');
+  font-display: swap;
+}
+
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 226 64% 88%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 226 64% 88%;
+
+    --info: 204 94% 94%;
+    --info-foreground: 199 89% 48%;
+
+    --success: 149 80% 90%;
+    --success-foreground: 160 84% 39%;
+
+    --warning: 48 96% 89%;
+    --warning-foreground: 25 95% 53%;
+
+    --error: 0 93% 94%;
+    --error-foreground: 0 84% 60%;
+
+    --ring: 240 5.9% 10%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark,
+  [data-kb-theme="dark"] {
+    /*Crust*/
+    --background: 240 23% 9%;
+    /*Text*/
+    --foreground: 226 64% 88%;
+
+    /*Surface 0*/
+    --muted: 237 16% 23%;
+    /*Subtext 0*/
+    --muted-foreground: 228 24% 72%;
+
+    /*Blue*/
+    --accent: 217 92% 76%;
+    --accent-foreground: 240 21% 15%;
+
+    /*Mantle*/
+    --popover: 240 21% 12%;
+    --popover-foreground: 226 64% 88%;
+
+    /*Base 300*/
+    --border: 240 21% 20%;
+    --input: 240 21% 20%;
+
+    /*Mantle*/
+    --card: 240 21% 12%;
+    --card-foreground: 226 64% 88%;
+
+    /*Blue*/
+    --primary: 222 74% 74%;
+    /*Base*/
+    --primary-foreground: 240 21% 15%;
+
+    /*Base*/
+    --secondary: 240 21% 15%;
+    --secondary-foreground: 226 64% 88%;
+
+    /*Red*/
+    --destructive: 343 81% 75%;
+    /*Base*/
+    --destructive-foreground: 240 21% 15%;
+
+    /*Sapphire*/
+    --info: 199 76% 69%;
+    /*Base*/
+    --info-foreground: 240 21% 15%;
+
+    /*Green*/
+    --success: 115 54% 76%;
+    /*Base*/
+    --success-foreground: 240 21% 15%;
+
+    /*Yellow*/
+    --warning: 41 86% 83%;
+    /*Base*/
+    --warning-foreground: 240 21% 15%;
+
+    /*Red*/
+    --error: 343 81% 75%;
+    --error-foreground: 240 21% 15%;
+
+    --ring: 240 4.9% 83.9%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply bg-black text-white;
+    @apply bg-background text-foreground;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
   }
 }

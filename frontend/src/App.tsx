@@ -1,21 +1,18 @@
-import "./index.css"
 import type { JSX } from "solid-js";
+import Navbar from "./components/navbar";
 
 type AppProps = {
-  children?: JSX.Element
-}
+	children?: JSX.Element;
+};
 
 function App(props: AppProps) {
-  return (
-    <>
-      <div class="bg-red-500">
-        <a href="/">Home</a>
-        <a href="/calculator">Calculator</a>
-      </div>
+	return (
+		<>
+      <Navbar />
 
-      {props.children}
-    </>
-  );
+			<main class="h-screen pt-20">{props.children}</main>
+		</>
+	);
 }
 
 export default App;
