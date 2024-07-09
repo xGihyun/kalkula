@@ -1,0 +1,27 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@cortex-js/compute-engine": "^0.25.1",
+    "@solidjs/router": "^0.13.6",
+    "autoprefixer": "^10.4.19",
+    "mathlive": "^0.100.0",
+    "nanoid": "^5.0.7",
+    "postcss": "^8.4.39",
+    "solid-js": "^1.8.17",
+    "tailwindcss": "^3.4.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-solid": "^2.10.2",
+    "vite-tsconfig-paths": "^4.3.2"
+  }
+}
