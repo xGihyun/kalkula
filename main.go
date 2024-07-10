@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"kalkula/backend"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -15,6 +16,8 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
+	backend := backend.NewBackend(&app.ctx)
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "kalkula",
@@ -27,6 +30,8 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
+			backend,
+      backend.Workspaces,
 		},
 	})
 
