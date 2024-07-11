@@ -4,8 +4,12 @@ import { Button } from "./ui/button";
 export default function Navbar(): JSX.Element {
 	const ROUTES = [
 		{
+			name: "Home",
+			path: "/",
+		},
+		{
 			name: "Calculator",
-			path: "/calculator",
+			path: "/workspaces",
 		},
 		{
 			name: "Formulas",

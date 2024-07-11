@@ -4,8 +4,10 @@ import { Button } from "./ui/button";
 import { setWorkspaces, workspaces } from "@/lib/states";
 import { nanoid } from "nanoid";
 import type { Workspace } from "@/types/data";
+import { backend } from "@/wailsjs/go/models";
+import { WorkspacesProps } from "@/types/props";
 
-export default function Workspaces(): JSX.Element {
+export default function Workspaces(props: WorkspacesProps): JSX.Element {
 	return (
 		<section class="min-w-60 lg:w-60 bg-card rounded-lg border flex flex-col">
 			<div class="bg-secondary px-3 py-4 flex items-center gap-2">
@@ -14,21 +16,21 @@ export default function Workspaces(): JSX.Element {
 			</div>
 
 			<div class="p-1 space-y-2">
-				<For each={workspaces}>{(ws) => <Tab {...ws} />}</For>
+				<For each={props.workspaces}>{(ws) => <Tab {...ws} />}</For>
 
-				<CreateWorkspace />
+				<CreateWorkspaceButton />
 			</div>
 		</section>
 	);
 }
 
-function Tab(props: Workspace): JSX.Element {
+function Tab(props: backend.Workspace): JSX.Element {
 	return (
 		<Button
 			class="w-full justify-start gap-1 bg-card hover:bg-secondary"
 			variant="secondary"
 			// @ts-expect-error I don't know the proper type for this
-			as={(p) => <a {...p} href={`/calculator?workspace=${props.id}`} />}
+			as={(p) => <a {...p} href={`/workspaces/${props.id}`} />}
 		>
 			<CalculatorIcon class="text-accent text-lg" />
 			<span class="font-inter-medium">
@@ -38,7 +40,7 @@ function Tab(props: Workspace): JSX.Element {
 	);
 }
 
-function CreateWorkspace(): JSX.Element {
+function CreateWorkspaceButton(): JSX.Element {
 	return (
 		<Button
 			class="w-full bg-transparent hover:bg-secondary"

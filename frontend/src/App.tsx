@@ -1,11 +1,7 @@
-import type { JSX } from "solid-js";
 import Navbar from "./components/navbar";
+import { WithChildren } from "./types/props";
 
-type AppProps = {
-	children?: JSX.Element;
-};
-
-function App(props: AppProps) {
+function App(props: WithChildren) {
 	return (
 		<>
       <Navbar />

@@ -5,13 +5,15 @@ import (
 )
 
 type Backend struct {
-	ctx        *context.Context
-	Workspaces *Workspaces
+	RuntimeContext *context.Context
+	Workspace      *Workspace
+	Equation       *Equation
 }
 
 func NewBackend(ctx *context.Context) *Backend {
 	return &Backend{
-		ctx:        ctx,
-		Workspaces: &Workspaces{},
+		RuntimeContext: ctx,
+		Workspace:      &Workspace{},
+		Equation:       &Equation{},
 	}
 }

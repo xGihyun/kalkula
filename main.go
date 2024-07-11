@@ -31,8 +31,10 @@ func main() {
 		Bind: []interface{}{
 			app,
 			backend,
-      backend.Workspaces,
+			backend.Workspace,
+			backend.Equation,
 		},
+    OnShutdown: app.shutdown,
 	})
 
 	if err != nil {

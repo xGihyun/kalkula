@@ -2,70 +2,84 @@ package backend
 
 import (
 	"fmt"
-	"kalkula/backend/models"
 	"log"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
-type Workspaces struct {}
+type Workspace struct {
+	ID       string  `json:"id"`
+	Name     *string `json:"name"`
+	Position int     `json:"position"`
+}
 
-func (w *Workspaces) GetWorkspaces() ([]models.Workspace, error) {
+func (w *Workspace) GetWorkspaces() ([]Workspace, error) {
 	log.Print("Fetching workspaces...")
 
-	var (
-		workspaces []models.Workspace
-		equations  []models.Equation
-	)
+	var workspaces []Workspace
 
-	// TODO:
-	// Get workspaces from database
-	// If user has no workspaces on the database, return the default
-	eq, err := newEquation()
+	query := "SELECT * FROM workspaces"
+	rows, err := DB.Query(query)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error during query: %s", err.Error())
 	}
 
-	equations = append(equations, *eq)
+	defer rows.Close()
 
-	ws, err := newWorkspace(equations)
+	for rows.Next() {
+		var ws Workspace
 
-	if err != nil {
-		return nil, err
+		rows.Scan(&ws.ID, &ws.Name, &ws.Position)
+
+		workspaces = append(workspaces, ws)
 	}
 
-	workspaces = append(workspaces, *ws)
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("Error during rows iteration: %s", rows.Err().Error())
+	}
+
+  if len(workspaces) == 0 {
+    log.Print("No workspaces.")
+
+    if err := w.CreateWorkspace(0); err != nil {
+      return nil, err
+    }
+  }
 
 	log.Print("Fetched workspaces.")
 
 	return workspaces, nil
 }
 
-func newWorkspace(eqs []models.Equation) (*models.Workspace, error) {
+func newWorkspace(name *string, pos int) (*Workspace, error) {
 	id, err := gonanoid.New()
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to generate ID for workspace.")
+		return nil, fmt.Errorf("Failed to generate ID for workspace: %s", err.Error())
 	}
 
-	ws := &models.Workspace{
-		ID: id, Name: nil, Position: 1, Equations: eqs,
+	ws := &Workspace{
+		ID: id, Name: name, Position: pos,
 	}
 
 	return ws, nil
 }
 
-func newEquation() (*models.Equation, error) {
-	id, err := gonanoid.New()
+func (w *Workspace) CreateWorkspace(len int) error {
+  query := "INSERT INTO workspaces (id, name, position) VALUES (?, ?, ?)"
 
-	if err != nil {
-		return nil, fmt.Errorf("Failed to generate ID for equation.")
-	}
+  ws, err := newWorkspace(nil, len + 1)
 
-	eq := &models.Equation{
-		ID: id, Content: nil,
-	}
+  if err != nil {
+    return err
+  }
 
-	return eq, nil
+  if _, err := DB.Exec(query, ws.ID, ws.Name, ws.Position); err != nil {
+    return err
+  }
+
+  log.Print("Created new workspace.")
+
+  return nil 
 }
