@@ -1,12 +1,13 @@
+import { setEquations } from "@/lib/states";
 import { GetEquations } from "@/wailsjs/go/backend/Equation";
-import { backend } from "@/wailsjs/go/models";
+import { RoutePreloadFuncArgs } from "@solidjs/router";
 
-export async function getEquations(
-	workspace_id: string,
-): Promise<backend.Equation[]> {
-	const equations = await GetEquations(workspace_id);
+export async function preloadEquations({
+	params,
+}: RoutePreloadFuncArgs): Promise<void> {
+	const eq = await GetEquations(params.id);
 
-	console.log("Equations:", equations);
+	setEquations(eq);
 
-	return equations;
+	console.log("Workspace: %s - Preloaded equations:", params.id, eq);
 }

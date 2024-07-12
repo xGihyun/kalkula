@@ -2,7 +2,7 @@ export namespace backend {
 	
 	export class Equation {
 	    id: string;
-	    content?: string;
+	    content: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Equation(source);

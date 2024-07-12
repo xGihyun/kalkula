@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -8,12 +9,12 @@ import (
 )
 
 type Equation struct {
-	ID      string  `json:"id"`
-	Content *string `json:"content"`
+	ID      string `json:"id"`
+	Content string `json:"content"`
 }
 
 func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
-	log.Print("Fetching equations...")
+  log.Printf("Fetching equations for workspace: %s", workspaceID)
 
 	var equations []Equation
 
@@ -21,8 +22,10 @@ func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
   SELECT eq.* 
   FROM equations eq
   JOIN workspace_equations wseq ON wseq.equation_id = eq.id
+  JOIN workspaces ws ON ws.id = wseq.workspace_id
+  WHERE ws.id = ?
   `
-	rows, err := DB.Query(query)
+	rows, err := DB.Query(query, workspaceID)
 
 	if err != nil {
 		return nil, fmt.Errorf("Error during query: %s", err.Error())
@@ -42,71 +45,79 @@ func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
 		return nil, fmt.Errorf("Error during rows iteration: %s", rows.Err().Error())
 	}
 
-	if len(equations) == 0 {
-		log.Print("No equations.")
-
-		eq, err := e.CreateEquation()
-
-		if err != nil {
-			return nil, err
-		}
-
-		wseq := workspaceEquationReq{
-			workspaceID: workspaceID,
-			equationID:  eq.ID,
-		}
-
-		if err := createWorkspaceEquation(&wseq); err != nil {
-			return nil, err
-		}
-	}
-
 	log.Print("Fetched equations.")
 
 	return equations, nil
 }
 
-func newEquation() (*Equation, error) {
+func NewEquation() (*Equation, error) {
 	id, err := gonanoid.New()
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to generate ID for equation: %s", err.Error())
+		return nil, err
 	}
 
 	eq := &Equation{
-		ID: id, Content: nil,
+		ID: id, Content: "",
 	}
 
 	return eq, nil
 }
 
-func (e *Equation) CreateEquation() (*Equation, error) {
+func (e *Equation) CreateEquation() error {
 	query := "INSERT INTO equations (id, content) VALUES (?, ?)"
 
-	eq, err := newEquation()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := DB.Exec(query, eq.ID, eq.Content); err != nil {
-		return nil, err
+	if _, err := DB.Exec(query, e.ID, e.Content); err != nil {
+		return err
 	}
 
 	log.Print("Created new equation.")
 
-	return eq, nil
+	return nil
 }
 
-type workspaceEquationReq struct {
-	workspaceID string
-	equationID  string
+func (e *Equation) createEquationTx(tx *sql.Tx) error {
+	query := "INSERT INTO equations (id, content) VALUES (?, ?)"
+
+	if _, err := tx.Exec(query, e.ID, e.Content); err != nil {
+		return err
+	}
+
+	log.Print("Created new equation.")
+
+	return nil
 }
 
-func createWorkspaceEquation(wseq *workspaceEquationReq) error {
+type WorkspaceEquationReq struct {
+	WorkspaceID string
+	EquationID  string
+}
+
+func NewWorkspaceEquation(wsID string, eqID string) *WorkspaceEquationReq {
+	wseq := &WorkspaceEquationReq{
+		WorkspaceID: wsID,
+		EquationID:  eqID,
+	}
+
+	return wseq
+}
+
+func (w *WorkspaceEquationReq) createWorkspaceEquation() error {
 	query := "INSERT INTO workspace_equations (equation_id, workspace_id) VALUES (?, ?)"
 
-	if _, err := DB.Exec(query, wseq.equationID, wseq.workspaceID); err != nil {
+	if _, err := DB.Exec(query, w.EquationID, w.WorkspaceID); err != nil {
+		return err
+	}
+
+	log.Print("Created new workspace equation.")
+
+	return nil
+}
+
+func (w *WorkspaceEquationReq) createWorkspaceEquationTx(tx *sql.Tx) error {
+	query := "INSERT INTO workspace_equations (equation_id, workspace_id) VALUES (?, ?)"
+
+	if _, err := tx.Exec(query, w.EquationID, w.WorkspaceID); err != nil {
 		return err
 	}
 

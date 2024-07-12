@@ -1,13 +1,11 @@
 import { CalculatorIcon, PlusIcon, WorkspaceIcon } from "@/assets/icons";
 import { For, type JSX } from "solid-js";
 import { Button } from "./ui/button";
-import { setWorkspaces, workspaces } from "@/lib/states";
-import { nanoid } from "nanoid";
-import type { Workspace } from "@/types/data";
 import { backend } from "@/wailsjs/go/models";
-import { WorkspacesProps } from "@/types/props";
+import { workspaces } from "@/lib/states";
+import { createWorkspace } from "@/server/workspace";
 
-export default function Workspaces(props: WorkspacesProps): JSX.Element {
+export default function Workspaces(): JSX.Element {
 	return (
 		<section class="min-w-60 lg:w-60 bg-card rounded-lg border flex flex-col">
 			<div class="bg-secondary px-3 py-4 flex items-center gap-2">
@@ -16,7 +14,7 @@ export default function Workspaces(props: WorkspacesProps): JSX.Element {
 			</div>
 
 			<div class="p-1 space-y-2">
-				<For each={props.workspaces}>{(ws) => <Tab {...ws} />}</For>
+				<For each={workspaces}>{(ws) => <Tab {...ws} />}</For>
 
 				<CreateWorkspaceButton />
 			</div>
@@ -41,6 +39,7 @@ function Tab(props: backend.Workspace): JSX.Element {
 }
 
 function CreateWorkspaceButton(): JSX.Element {
+
 	return (
 		<Button
 			class="w-full bg-transparent hover:bg-secondary"
@@ -52,12 +51,3 @@ function CreateWorkspaceButton(): JSX.Element {
 	);
 }
 
-function createWorkspace(): void {
-	const ws: Workspace = {
-		id: nanoid(),
-		equations: [{ id: nanoid() }],
-		position: workspaces.length + 1,
-	};
-
-	setWorkspaces(workspaces.length, ws);
-}

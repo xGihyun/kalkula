@@ -1,6 +1,8 @@
 package backend
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -39,47 +41,120 @@ func (w *Workspace) GetWorkspaces() ([]Workspace, error) {
 		return nil, fmt.Errorf("Error during rows iteration: %s", rows.Err().Error())
 	}
 
-  if len(workspaces) == 0 {
-    log.Print("No workspaces.")
-
-    if err := w.CreateWorkspace(0); err != nil {
-      return nil, err
-    }
-  }
-
 	log.Print("Fetched workspaces.")
 
 	return workspaces, nil
 }
 
-func newWorkspace(name *string, pos int) (*Workspace, error) {
+func initWorkspaces(tx *sql.Tx) (initErr error) {
+
+	query := "SELECT id FROM workspaces LIMIT 1"
+	row := tx.QueryRow(query)
+
+	var s string
+
+	if err := row.Scan(&s); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+
+		log.Print("No workspaces, initializing...")
+
+		ws := new(Workspace)
+
+		if err := ws.createWorkspaceTx(tx, 1); err != nil {
+			return err
+		}
+
+		eq, err := NewEquation()
+
+		if err != nil {
+			return err
+		}
+
+		if err := eq.createEquationTx(tx); err != nil {
+			return err
+		}
+
+		wseq := NewWorkspaceEquation(ws.ID, eq.ID)
+
+		if err := wseq.createWorkspaceEquationTx(tx); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	log.Print("Initialized workspaces.")
+
+	return nil
+}
+
+func (w *Workspace) NewWorkspace(pos int) error {
 	id, err := gonanoid.New()
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to generate ID for workspace: %s", err.Error())
+		return err
 	}
 
-	ws := &Workspace{
-		ID: id, Name: name, Position: pos,
-	}
+	w.ID = id
+	w.Position = pos
 
-	return ws, nil
+	return nil
 }
 
-func (w *Workspace) CreateWorkspace(len int) error {
-  query := "INSERT INTO workspaces (id, name, position) VALUES (?, ?, ?)"
+func (w *Workspace) CreateWorkspace(pos int) (_ *Workspace, fnErr error) {
+	if err := w.NewWorkspace(pos); err != nil {
+		return nil, err
+	}
 
-  ws, err := newWorkspace(nil, len + 1)
+	tx, err := DB.Begin()
 
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  if _, err := DB.Exec(query, ws.ID, ws.Name, ws.Position); err != nil {
-    return err
-  }
+  defer TxCommitOrRollback(tx, fnErr)
 
-  log.Print("Created new workspace.")
+	query := "INSERT INTO workspaces (id, name, position) VALUES (?, ?, ?)"
 
-  return nil 
+	if _, err := DB.Exec(query, w.ID, w.Name, w.Position); err != nil {
+		return nil, err
+	}
+
+	eq, err := NewEquation()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err := eq.createEquationTx(tx); err != nil {
+		return nil, err
+	}
+
+	wseq := NewWorkspaceEquation(w.ID, eq.ID)
+
+	if err := wseq.createWorkspaceEquationTx(tx); err != nil {
+		return nil, err
+	}
+
+	log.Print("Created new workspace.")
+
+	return w, nil
+}
+
+func (w *Workspace) createWorkspaceTx(tx *sql.Tx, pos int) error {
+	if err := w.NewWorkspace(pos); err != nil {
+		return err
+	}
+
+	query := "INSERT INTO workspaces (id, name, position) VALUES (?, ?, ?)"
+
+	if _, err := tx.Exec(query, w.ID, w.Name, w.Position); err != nil {
+		return err
+	}
+
+	log.Print("Created new workspace.")
+
+	return nil
 }

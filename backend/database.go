@@ -13,6 +13,7 @@ var (
 	DB *sql.DB
 )
 
+// Opens the connection to the database, both local and remote
 func OpenConnection() {
 	log.Print("Opening database connection...")
 
@@ -43,13 +44,33 @@ func InitDB() (initErr error) {
 	tx, err := DB.Begin()
 
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
+
+	defer TxCommitOrRollback(tx, initErr)
 
 	for _, q := range queries {
 		_, err := tx.Exec(q)
 
 		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Print("Created tables.")
+
+	if err := initWorkspaces(tx); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Print("Initialized database.")
+
+	return nil
+}
+
+func TxCommitOrRollback(tx *sql.Tx, err error) error {
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
 			return err
 		}
 	}
@@ -57,8 +78,6 @@ func InitDB() (initErr error) {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-
-	log.Print("Initialized database.")
 
 	return nil
 }

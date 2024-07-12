@@ -1,4 +1,6 @@
-import { Workspace } from "@/types/data";
+import { Equation } from "@/types/data";
+import { backend } from "@/wailsjs/go/models";
 import { createStore } from "solid-js/store";
 
-export const [workspaces, setWorkspaces] = createStore<Workspace[]>([]);
+export const [workspaces, setWorkspaces] = createStore<backend.Workspace[]>([]);
+export const [equations, setEquations] = createStore<Equation[]>([]);

@@ -1,6 +1,4 @@
-import { Equation } from "@/types/data";
 import { MathFieldProps } from "@/types/props";
-import { nanoid } from "nanoid";
 //import { setWorkspaces } from "./states";
 //import { produce } from "solid-js/store";
 
@@ -21,9 +19,9 @@ export function mathFieldInput(e: InputEvent, props: MathFieldProps): void {
 }
 
 function createMathField(_: number): void {
-  const eq: Equation = {
-    id: nanoid(),
-  };
+  //const eq: Equation = {
+  //  id: nanoid(),
+  //};
 
   //setWorkspaces(
   //  (ws) => ws.id === workspace.id,
@@ -32,7 +30,7 @@ function createMathField(_: number): void {
   //  }),
   //);
 
-  eq.math_field_input?.focus();
+  //eq.math_field_input?.focus();
 }
 
 //function deleteMathField(props: MathFieldProps): void {

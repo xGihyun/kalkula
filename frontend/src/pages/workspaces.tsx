@@ -1,17 +1,15 @@
 import { type JSX } from "solid-js";
 import Workspaces from "@/components/workspaces";
 import "mathlive";
-
-import { createAsyncStore } from "@solidjs/router";
 import { WithChildren } from "@/types/props";
-import { getWorkspaces } from "@/server/workspace";
+import { loadWorkspaces } from "@/server/workspace";
 
 export default function Page(props: WithChildren): JSX.Element {
-	const workspaces = createAsyncStore(() => getWorkspaces());
+  loadWorkspaces()
 
 	return (
 		<div class="flex gap-2 h-full py-10 px-10">
-			<Workspaces workspaces={workspaces()} />
+			<Workspaces />
 
 			<div class="flex flex-col gap-2 h-full w-full">
 				{props.children}
