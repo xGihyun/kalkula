@@ -9,3 +9,11 @@ export function CreateEquation() {
 export function GetEquations(arg1) {
   return window['go']['backend']['Equation']['GetEquations'](arg1);
 }
+
+export function NewEquation() {
+  return window['go']['backend']['Equation']['NewEquation']();
+}
+
+export function SaveEquations(arg1, arg2) {
+  return window['go']['backend']['Equation']['SaveEquations'](arg1, arg2);
+}

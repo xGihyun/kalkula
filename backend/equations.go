@@ -14,7 +14,7 @@ type Equation struct {
 }
 
 func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
-  log.Printf("Fetching equations for workspace: %s", workspaceID)
+	log.Printf("Fetching equations for workspace: %s", workspaceID)
 
 	var equations []Equation
 
@@ -50,12 +50,81 @@ func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
 	return equations, nil
 }
 
-func NewEquation() (*Equation, error) {
+func (e *Equation) SaveEquations(workspaceID string, equations []Equation) (fnErr error) {
+	if len(equations) == 0 {
+		return nil
+	}
+
+	prevEqs, err := e.GetEquations(workspaceID)
+
+	if err != nil {
+		return err
+	}
+
+	eqsToDelete := make(map[string]bool)
+
+	for _, eq := range prevEqs {
+		eqsToDelete[eq.ID] = true
+	}
+
+	eqQuery := `
+  INSERT OR REPLACE INTO equations (id, content)
+  VALUES (?, ?)
+  `
+	wsQuery := `
+  INSERT OR REPlACE INTO workspace_equations (equation_id, workspace_id)
+  VALUES (?, ?)
+  `
+
+	tx, err := DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer TxCommitOrRollback(tx, fnErr)
+
+	for _, eq := range equations {
+		if _, err := tx.Exec(eqQuery, eq.ID, eq.Content); err != nil {
+			return err
+		}
+
+		if _, err := tx.Exec(wsQuery, eq.ID, workspaceID); err != nil {
+			return err
+		}
+
+		eqsToDelete[eq.ID] = false
+	}
+
+	eqQuery = `
+  DELETE FROM equations
+  WHERE id = ?
+  `
+
+	for id, del := range eqsToDelete {
+		if !del {
+			continue
+		}
+
+		if _, err := tx.Exec(eqQuery, id); err != nil {
+			return err
+		}
+	}
+
+	log.Print("Saved equations.")
+
+	return nil
+}
+
+func (e *Equation) NewEquation() (*Equation, error) {
 	id, err := gonanoid.New()
 
 	if err != nil {
 		return nil, err
 	}
+
+	e.ID = id
+	e.Content = ""
 
 	eq := &Equation{
 		ID: id, Content: "",

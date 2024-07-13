@@ -1,12 +1,13 @@
-import { For, type JSX } from "solid-js";
+import { For, Show, type JSX } from "solid-js";
 import "mathlive";
 import { mathFieldInput } from "@/lib/keyboard";
 import { MathFieldProps } from "@/types/props";
-import { useParams } from "@solidjs/router";
 import { equations, setEquations } from "@/lib/states";
+import { evaluateEquations, evaluateVariable } from "@/lib/math";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { RoundArrowRightIcon } from "@/assets/icons";
 
 export default function Calculator(): JSX.Element {
-
   return (
     <section class="rounded-lg border bg-card flex flex-col flex-1 justify-end">
       <For each={equations}>
@@ -17,20 +18,27 @@ export default function Calculator(): JSX.Element {
 }
 
 function MathField(props: MathFieldProps): JSX.Element {
-  const params = useParams();
-
-  console.log(params);
-
   return (
-    <div class="w-full odd:bg-secondary">
+    <div class="w-full odd:bg-secondary relative">
       <math-field
-        class="px-10 py-2 w-full h-12 text-sm md:text-lg text-foreground bg-transparent"
+        class="px-10 py-2 w-full min-h-12 h-auto text-sm md:text-lg text-foreground bg-transparent transition-colors border border-transparent peer"
         math-virtual-keyboard-policy="manual"
-        onbeforeinput={(e) => mathFieldInput(e, props)}
+        onbeforeinput={(e) => {
+          mathFieldInput(e, props);
+          setEquations(
+            (eq) => eq.id === props.equation.id,
+            "previous_content",
+            e.currentTarget.value,
+          );
+        }}
         oninput={(e) => {
-          const val = e.currentTarget.value;
-
-          setEquations((eq) => eq.id === props.equation.id, "content", val);
+          setEquations(
+            (eq) => eq.id === props.equation.id,
+            "content",
+            e.currentTarget.value,
+          );
+          evaluateVariable(props.equation);
+          evaluateEquations(equations);
         }}
         ref={(el) => {
           setEquations(
@@ -42,6 +50,31 @@ function MathField(props: MathFieldProps): JSX.Element {
       >
         {props.equation.content}
       </math-field>
+
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-full w-10 flex items-center opacity-0 peer-focus:opacity-100 transition-opacity">
+        <RoundArrowRightIcon class="text-accent text-3xl md:text-4xl" />
+      </span>
+
+      <div class="absolute right-14 top-1/2 -translate-y-1/2 z-50 flex items-center h-full py-2">
+        <Show
+          when={props.equation.result}
+          fallback={
+            <math-field
+              class="text-sm md:text-lg bg-transparent text-foreground"
+              read-only
+            >
+              {props.equation.evaluation}
+            </math-field>
+          }
+        >
+          <Tooltip>
+            <TooltipTrigger class="flex h-full items-center">
+              {props.equation.result?.icon}
+            </TooltipTrigger>
+            <TooltipContent>{props.equation.result?.message}</TooltipContent>
+          </Tooltip>
+        </Show>
+      </div>
     </div>
   );
 }

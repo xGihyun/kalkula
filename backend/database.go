@@ -69,15 +69,22 @@ func InitDB() (initErr error) {
 }
 
 func TxCommitOrRollback(tx *sql.Tx, err error) error {
+
 	if err != nil {
+		log.Print("Error during transaction, rolling back...")
+
 		if err := tx.Rollback(); err != nil {
+			log.Print("Failed to rollback transaction.")
 			return err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
+		log.Print("Failed to commit transaction.")
 		return err
 	}
+
+	log.Print("Transaction committed")
 
 	return nil
 }

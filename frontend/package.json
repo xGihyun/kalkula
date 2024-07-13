@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "mathlive": "^0.100.0",
     "nanoid": "^5.0.7",
+    "neverthrow": "^6.2.2",
     "postcss": "^8.4.39",
     "solid-js": "^1.8.17",
     "tailwind-merge": "^2.4.0",

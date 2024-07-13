@@ -5,3 +5,7 @@ import {backend} from '../models';
 export function CreateEquation():Promise<void>;
 
 export function GetEquations(arg1:string):Promise<Array<backend.Equation>>;
+
+export function NewEquation():Promise<backend.Equation>;
+
+export function SaveEquations(arg1:string,arg2:Array<backend.Equation>):Promise<void>;

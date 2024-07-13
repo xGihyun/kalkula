@@ -66,11 +66,11 @@ func initWorkspaces(tx *sql.Tx) (initErr error) {
 			return err
 		}
 
-		eq, err := NewEquation()
+    eq := new(Equation)
 
-		if err != nil {
-			return err
-		}
+    if _, err := eq.NewEquation(); err != nil {
+      return err
+    }
 
 		if err := eq.createEquationTx(tx); err != nil {
 			return err
@@ -122,11 +122,11 @@ func (w *Workspace) CreateWorkspace(pos int) (_ *Workspace, fnErr error) {
 		return nil, err
 	}
 
-	eq, err := NewEquation()
+  eq := new(Equation)
 
-	if err != nil {
-		return nil, err
-	}
+  if _, err := eq.NewEquation(); err != nil {
+    return nil, err
+  }
 
 	if err := eq.createEquationTx(tx); err != nil {
 		return nil, err
