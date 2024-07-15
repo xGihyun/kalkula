@@ -3,7 +3,6 @@ package backend
 import (
 	"database/sql"
 	"log"
-	"os"
 	"strings"
 
 	_ "github.com/tursodatabase/go-libsql"
@@ -17,7 +16,9 @@ var (
 func OpenConnection() {
 	log.Print("Opening database connection...")
 
-	dbFile := "file:./backend/dev/local.db"
+  // Place it somewhere on the system
+	// dbFile := "file:./backend/dev/local.db"
+  dbFile := "file:/home/gihyun/Applications/local.db"
 
 	db, err := sql.Open("libsql", dbFile)
 
@@ -33,13 +34,14 @@ func OpenConnection() {
 func InitDB() (initErr error) {
 	log.Print("Initializing database...")
 
-	data, err := os.ReadFile("./backend/sql/init.sql")
+  // Place it somewhere on the system
+	// data, err := os.ReadFile("./backend/sql/init.sql")
+	//
+	// if err != nil {
+	// 	log.Fatal("Failed to read SQL file: ", err.Error())
+	// }
 
-	if err != nil {
-		log.Fatal("Failed to read SQL file: ", err.Error())
-	}
-
-	queries := strings.Split(string(data), "-- split")
+	queries := strings.Split(string(LOCAL_SQL), "-- split")
 
 	tx, err := DB.Begin()
 

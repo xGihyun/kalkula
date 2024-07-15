@@ -1,20 +1,9 @@
-import { onMount, type JSX } from "solid-js";
+import { type JSX } from "solid-js";
 import Workspaces from "@/components/workspaces";
 import "mathlive";
 import { WithChildren } from "@/types/props";
-import { loadWorkspaces } from "@/server/workspace";
-import { useNavigate } from "@solidjs/router";
-import { workspaces } from "@/lib/states";
 
 export default function Page(props: WithChildren): JSX.Element {
-  const navigate = useNavigate();
-
-  onMount(async () => {
-    await loadWorkspaces();
-
-    navigate(`/workspaces/${workspaces[0].id}`);
-  });
-
   return (
     <div class="flex gap-2 h-full py-10 px-10">
       <Workspaces />

@@ -1,38 +1,26 @@
 import Calculator from "@/components/calculator";
 import { evaluateEquations } from "@/lib/math";
 import { equations, setEquations } from "@/lib/states";
-import { loadEquations } from "@/server/equation";
-import { SaveEquations } from "@/wailsjs/go/backend/Equation";
-import { backend } from "@/wailsjs/go/models";
+import { loadEquations, saveEquations } from "@/server/equation";
 import { useBeforeLeave, useParams } from "@solidjs/router";
 import { createEffect, type JSX } from "solid-js";
 
 export default function Page(): JSX.Element {
-  const params = useParams();
+	const params = useParams();
 
-  createEffect(async () => {
-    console.log("Navigated");
-    const eqs = await loadEquations(params.id);
-    setEquations(eqs);
-    evaluateEquations(eqs)
-  });
+	createEffect(async () => {
+		console.log("Navigated");
+		const eqs = await loadEquations(params.id);
+		setEquations(eqs);
+		evaluateEquations(eqs);
+	});
 
-  useBeforeLeave(async () => {
-    const eq = equations
-      .filter((eq) => eq.content)
-      .map((eq) => {
-        const b_eq: backend.Equation = {
-          id: eq.id,
-          content: eq.content,
-        };
+	// TODO:
+	// Perform a diff check between the loaded equations and the current equations,
+	// if they're the same, there's no need to save
+	useBeforeLeave(async () => {
+		await saveEquations(params.id, equations);
+	});
 
-        return b_eq;
-      });
-
-    await SaveEquations(params.id, eq);
-
-    console.log("Saved equations.");
-  });
-
-  return <Calculator />;
+	return <Calculator />;
 }
