@@ -51,6 +51,9 @@ func (e *Equation) GetEquations(workspaceID string) ([]Equation, error) {
 }
 
 func (e *Equation) SaveEquations(workspaceID string, equations []Equation) (fnErr error) {
+
+  log.Print("SAVING:", equations)
+
 	if len(equations) == 0 {
 		return nil
 	}

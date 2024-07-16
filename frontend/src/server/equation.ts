@@ -1,3 +1,4 @@
+import { toBackendEquations } from "@/lib/utils";
 import { Equation } from "@/types/data";
 import { GetEquations, SaveEquations } from "@/wailsjs/go/backend/Equation";
 import { backend } from "@/wailsjs/go/models";
@@ -14,16 +15,7 @@ export async function saveEquations(
 	workspaceID: string,
 	equations: Equation[],
 ) {
-	const eq = equations
-		.filter((eq) => eq.content)
-		.map((eq) => {
-			const b_eq: backend.Equation = {
-				id: eq.id,
-				content: eq.content,
-			};
-
-			return b_eq;
-		});
+	const eq = toBackendEquations(equations);
 
 	await SaveEquations(workspaceID, eq);
 
